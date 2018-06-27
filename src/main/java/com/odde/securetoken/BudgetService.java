@@ -1,7 +1,6 @@
 package com.odde.securetoken;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +61,9 @@ public class BudgetService {
 
     private int getAfterPartialAmount(LocalDate date, List<Budget> list) {
         String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).collect(Collectors.toList()).get(0);
+        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+            setAmount(0);
+        }});
         return budget.getAmount() / date.lengthOfMonth() * (date.lengthOfMonth() - date.getDayOfMonth() + 1);
     }
 

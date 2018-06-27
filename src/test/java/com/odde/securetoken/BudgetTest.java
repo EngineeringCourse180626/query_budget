@@ -53,25 +53,33 @@ public class BudgetTest {
     }
 
     @Test
+    public void start_is_before_month_start() {
+        givenBudgets(budget("201803", 31));
+
+        assertTotalAmountEquals(10,
+                of(2018, 2, 20),
+                of(2018, 3, 10));
+    }
+
+    @Test
     public void cross_month() {
         givenBudgets(
                 budget("201803", 31),
                 budget("201804", 30 * 2)
         );
 
-        assertTotalAmountEquals(31 + 2 * 2,
-                of(2018, 3, 1),
-                of(2018, 4, 2));
+        assertTotalAmountEquals(12 + 2 * 10,
+                of(2018, 3, 20),
+                of(2018, 4, 10));
     }
 
     @Test
     public void cross_multi_month() {
         givenBudgets(
                 budget("201803", 31),
-                budget("201804", 60),
                 budget("201805", 62));
 
-        assertTotalAmountEquals(1 + 60 + 2,
+        assertTotalAmountEquals(1 + 2,
                 of(2018, 3, 31),
                 of(2018, 5, 1));
     }
@@ -87,6 +95,16 @@ public class BudgetTest {
                 of(2017, 12, 31),
                 of(2018, 2, 1));
     }
+
+//    @Test
+//    public void same_month_but_different_year() {
+//        givenBudgets(
+//                budget("201712", 31));
+//
+//        assertTotalAmountEquals(0,
+//                of(2018, 12, 10),
+//                of(2019, 12, 11));
+//    }
 
     private void givenBudgets(Budget... budget) {
         List<Budget> list = Arrays.asList(budget);
