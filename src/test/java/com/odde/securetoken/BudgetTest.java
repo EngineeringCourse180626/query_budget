@@ -1,56 +1,54 @@
 package com.odde.securetoken;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.spy;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static java.time.LocalDate.of;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.spy;
 
 public class BudgetTest {
 
     BudgetService service = spy(BudgetService.class);
 
-    @Before
-    public void before() throws Exception {
-    }
+    @Test
+    public void invalid_date() {
+        givenBudgets(new Budget() {{
+            setYearAndMonth("201803");
+            setAmount(31);
+        }});
 
-    @After
-    public void after() throws Exception {
+        assertTotalAmountEquals(0,
+                of(2018, 3, 4),
+                of(2018, 3, 3));
     }
 
     @Test
-    public void invalid_date() throws Exception {
-        LocalDate start = LocalDate.of(2018, 3, 4);
-        LocalDate end = LocalDate.of(2018, 3, 3);
+    public void same_date() {
+        givenBudgets(new Budget() {{
+            setYearAndMonth("201803");
+            setAmount(31);
+        }});
 
-        int amount = service.query(start, end);
-        Assert.assertEquals(0, amount);
-    }
-
-    @Test
-    public void same_date() throws Exception {
-        givenMarch();
-
-        LocalDate start = LocalDate.of(2018, 3, 3);
-        LocalDate end = LocalDate.of(2018, 3, 3);
-
-        int amount = service.query(start, end);
-        Assert.assertEquals(1, amount);
+        assertTotalAmountEquals(1,
+                of(2018, 3, 3),
+                of(2018, 3, 3));
     }
 
     @Test
     public void same_month() {
-        givenMarch();
-        LocalDate start = LocalDate.of(2018, 3, 1);
-        LocalDate end = LocalDate.of(2018, 3, 31);
+        givenBudgets(new Budget() {{
+            setYearAndMonth("201803");
+            setAmount(31);
+        }});
+        LocalDate start = of(2018, 3, 1);
+        LocalDate end = of(2018, 3, 31);
 
         int amount = service.query(start, end);
         Assert.assertEquals(31, amount);
@@ -58,9 +56,9 @@ public class BudgetTest {
 
     @Test
     public void partial_month() {
-        givenMarch();
-        LocalDate start = LocalDate.of(2018, 3, 1);
-        LocalDate end = LocalDate.of(2018, 3, 20);
+        given();
+        LocalDate start = of(2018, 3, 1);
+        LocalDate end = of(2018, 3, 20);
 
         int amount = service.query(start, end);
         Assert.assertEquals(20, amount);
@@ -68,19 +66,28 @@ public class BudgetTest {
 
     @Test
     public void cross_month() {
-        given();
-        LocalDate start = LocalDate.of(2018, 3, 1);
-        LocalDate end = LocalDate.of(2018, 4, 2);
+        givenBudgets(
+                budget("201803", 31),
+                budget("201804", 30 * 2)
+        );
 
-        int amount = service.query(start, end);
-        Assert.assertEquals(31 + 4, amount);
+        assertTotalAmountEquals(31 + 2 * 2,
+                of(2018, 3, 1),
+                of(2018, 4, 2));
+    }
+
+    private Budget budget(final String theYearAndMonth, final int theAmount) {
+        return new Budget(){{
+            setYearAndMonth(theYearAndMonth);
+            setAmount(theAmount);
+        }};
     }
 
     @Test
     public void cross_multi_month() {
         given();
-        LocalDate start = LocalDate.of(2018, 3, 31);
-        LocalDate end = LocalDate.of(2018, 5, 1);
+        LocalDate start = of(2018, 3, 31);
+        LocalDate end = of(2018, 5, 1);
 
         int amount = service.query(start, end);
         Assert.assertEquals(1 + 60 + 2, amount);
@@ -89,8 +96,8 @@ public class BudgetTest {
     @Test
     public void cross_year() {
         givenCrossYear();
-        LocalDate start = LocalDate.of(2017, 12, 31);
-        LocalDate end = LocalDate.of(2018, 2, 1);
+        LocalDate start = of(2017, 12, 31);
+        LocalDate end = of(2018, 2, 1);
 
         int amount = service.query(start, end);
         Assert.assertEquals(1 + 62 + 1, amount);
@@ -125,12 +132,14 @@ public class BudgetTest {
         Mockito.when(service.findByYearMonth(any(), any())).thenReturn(list);
     }
 
-    void givenMarch() {
-        List<Budget> list = Arrays.asList(new Budget(){{
-            setYearAndMonth("201803");
-            setAmount(31);
-        }});
+    void givenBudgets(Budget... budget) {
+        List<Budget> list = Arrays.asList(budget);
 
         Mockito.when(service.findByYearMonth(isA(LocalDate.class), isA(LocalDate.class))).thenReturn(list);
     }
+
+    private void assertTotalAmountEquals(int expected, LocalDate start, LocalDate end) {
+        Assert.assertEquals(expected, service.query(start, end));
+    }
+
 }
