@@ -62,6 +62,15 @@ public class BudgetTest {
     }
 
     @Test
+    public void end_is_after_month_end() {
+        givenBudgets(budget("201803", 31));
+
+        assertTotalAmountEquals(12,
+                of(2018, 3, 20),
+                of(2018, 4, 10));
+    }
+
+    @Test
     public void cross_month() {
         givenBudgets(
                 budget("201803", 31),

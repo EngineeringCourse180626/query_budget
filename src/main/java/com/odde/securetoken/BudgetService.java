@@ -55,7 +55,9 @@ public class BudgetService {
 
     private int getBeforePartialAmount(LocalDate date, List<Budget> list) {
         String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).collect(Collectors.toList()).get(0);
+        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+            setAmount(0);
+        }});
         return budget.getAmount() / date.lengthOfMonth() * date.getDayOfMonth();
     }
 
