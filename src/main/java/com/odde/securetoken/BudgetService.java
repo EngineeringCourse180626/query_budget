@@ -29,10 +29,15 @@ public class BudgetService {
         }
         if (start.getMonth() != end.getMonth()) {
             if (end.getMonthValue() - start.getMonthValue() >= 2) {
-                List<Budget> fullMonthBudgets = list.subList(1, list.size() - 1);
+                LocalDate next = start.withDayOfMonth(1).plusMonths(1);
                 int fullMonthBudgetAmount = 0;
-                for (Budget budget: fullMonthBudgets) {
+                while (next.isBefore(end.withDayOfMonth(1))) {
+                    String str = next.format(DateTimeFormatter.ofPattern("yyyyMM"));
+                    Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+                        setAmount(0);
+                    }});
                     fullMonthBudgetAmount += budget.amount;
+                    next = next.plusMonths(1);
                 }
                 return getAfterPartialAmount(start, list) + getBeforePartialAmount(end, list) + fullMonthBudgetAmount;
             }

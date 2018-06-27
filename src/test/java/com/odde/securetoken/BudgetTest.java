@@ -80,6 +80,24 @@ public class BudgetTest {
     }
 
     @Test
+    public void end_is_before_month_start() {
+        givenBudgets(budget("201803", 31));
+
+        assertTotalAmountEquals(0,
+                of(2018, 1, 5),
+                of(2018, 2, 10));
+    }
+
+    @Test
+    public void end_is_before_month_start_over_2_months() {
+        givenBudgets(budget("201808", 31));
+
+        assertTotalAmountEquals(0,
+                of(2018, 1, 5),
+                of(2018, 4, 10));
+    }
+
+    @Test
     public void cross_month() {
         givenBudgets(
                 budget("201803", 31),
