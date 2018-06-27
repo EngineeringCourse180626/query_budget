@@ -132,15 +132,15 @@ public class BudgetTest {
                 of(2018, 2, 1));
     }
 
-//    @Test
-//    public void same_month_but_different_year() {
-//        givenBudgets(
-//                budget("201712", 31));
-//
-//        assertTotalAmountEquals(0,
-//                of(2018, 12, 10),
-//                of(2019, 12, 11));
-//    }
+    @Test
+    public void same_month_but_different_year() {
+        givenBudgets(
+                budget("201712", 31));
+
+        assertTotalAmountEquals(0,
+                of(2018, 12, 10),
+                of(2019, 12, 11));
+    }
 
     private void givenBudgets(Budget... budget) {
         List<Budget> list = Arrays.asList(budget);
