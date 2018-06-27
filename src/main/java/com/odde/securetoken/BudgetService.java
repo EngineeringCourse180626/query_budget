@@ -40,8 +40,11 @@ public class BudgetService {
         }
 
         if (start.getMonth() == end.getMonth()) {
-            List<Budget> budgetList = list.stream().filter(b -> b.getYearAndMonth().equals(startString)).collect(Collectors.toList());
-            int monthBudget = budgetList.get(0).getAmount();
+            String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
+            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+                setAmount(0);
+            }});
+            int monthBudget = budget.getAmount();
             int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
             return monthBudget / start.lengthOfMonth() * diffDays;
         }
