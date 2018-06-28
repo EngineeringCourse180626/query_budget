@@ -23,19 +23,9 @@ public class BudgetService {
 
         if (start.getMonth() != end.getMonth()) {
             if (end.getMonthValue() - start.getMonthValue() >= 2) {
-                int fullMonthBudgetAmount = 0;
-                LocalDate next = start.withDayOfMonth(1).plusMonths(1);
-                while (next.isBefore(end.withDayOfMonth(1))) {
-                    String str = next.format(DateTimeFormatter.ofPattern("yyyyMM"));
-                    Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
-                        setAmount(0);
-                    }});
-                    fullMonthBudgetAmount += budget.amount;
-                    next = next.plusMonths(1);
-                }
-                return getStartPartialAmount(start, list) + getEndPartialAmount(end, list) + fullMonthBudgetAmount;
+                return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
             }
-            return getStartPartialAmount(start, list) + getEndPartialAmount(end, list);
+            return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
         }
 
         if (start.getMonth() == end.getMonth()) {
