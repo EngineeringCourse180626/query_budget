@@ -28,14 +28,12 @@ public class BudgetService {
         Budget startBudget = getBudget(start, list);
         total += startBudget.getDailyAmount() * (start.lengthOfMonth() - start.getDayOfMonth() + 1);
 
-        int fullMonthBudgetAmount = 0;
         LocalDate next = start.withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(end.withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
-            fullMonthBudgetAmount += budget.getDailyAmount() * budget.getFirstDay().lengthOfMonth();
+            total += budget.getDailyAmount() * budget.getFirstDay().lengthOfMonth();
             next = next.plusMonths(1);
         }
-        total += fullMonthBudgetAmount;
 
         Budget endBudget = getBudget(end, list);
         total += endBudget.getDailyAmount() * end.getDayOfMonth();
