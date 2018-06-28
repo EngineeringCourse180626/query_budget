@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BudgetService {
 
@@ -17,33 +16,17 @@ public class BudgetService {
             return 0;
         }
 
-        if (start.getYear() < end.getYear()) {
+        if (start.getYear() < end.getYear() || start.getMonth() != end.getMonth()) {
             return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
         }
 
-        if (start.getMonth() != end.getMonth()) {
-            if (end.getMonthValue() - start.getMonthValue() >= 2) {
-                return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
-            }
-            return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
-        }
-
-        if (start.getMonth() == end.getMonth()) {
-            String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
-            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
-                setAmount(0);
-            }});
-            int monthBudget = budget.getAmount();
-            int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
-            return monthBudget / start.lengthOfMonth() * diffDays;
-        }
-        if (start.equals(end)) {
-            String startString = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
-            List<Budget> budgetList = list.stream().filter(b -> b.getYearAndMonth().equals(startString)).collect(Collectors.toList());
-            return budgetList.get(0).getAmount() / start.lengthOfMonth();
-        }
-
-        return 0;
+        String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
+        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
+            setAmount(0);
+        }});
+        int monthBudget = budget.getAmount();
+        int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
+        return monthBudget / start.lengthOfMonth() * diffDays;
     }
 
     private int getMiddleMonthsAmount(LocalDate start, LocalDate end, List<Budget> list) {
@@ -51,7 +34,7 @@ public class BudgetService {
         LocalDate next = start.withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(end.withDayOfMonth(1))) {
             String str = next.format(DateTimeFormatter.ofPattern("yyyyMM"));
-            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
                 setAmount(0);
             }});
             fullMonthBudgetAmount += budget.amount;
@@ -62,7 +45,7 @@ public class BudgetService {
 
     private int getEndPartialAmount(LocalDate date, List<Budget> list) {
         String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
             setAmount(0);
         }});
         return budget.getAmount() / date.lengthOfMonth() * date.getDayOfMonth();
@@ -70,7 +53,7 @@ public class BudgetService {
 
     private int getStartPartialAmount(LocalDate date, List<Budget> list) {
         String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget(){{
+        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
             setAmount(0);
         }});
         return budget.getAmount() / date.lengthOfMonth() * (date.lengthOfMonth() - date.getDayOfMonth() + 1);
