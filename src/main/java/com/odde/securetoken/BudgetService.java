@@ -38,7 +38,7 @@ public class BudgetService {
         }
 
         Budget endBudget = getBudget(duration.getEnd(), list);
-        total += endBudget.getDailyAmount() * endBudget.getDuration().getOverlappingDays(duration);
+        total += endBudget.getDailyAmount() * duration.getOverlappingDays(endBudget.getDuration());
 
         return total;
     }
