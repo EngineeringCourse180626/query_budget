@@ -36,4 +36,8 @@ public class Budget {
     public LocalDate getLastDay() {
         return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM")).atEndOfMonth();
     }
+
+    public Duration getDuration() {
+        return new Duration(getFirstDay(), getLastDay());
+    }
 }
