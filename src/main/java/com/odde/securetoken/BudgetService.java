@@ -18,25 +18,29 @@ public class BudgetService {
             return 0;
         }
 
-        if (isSameMonth(start, end)) {
-            Budget startBudget = getBudget(start, list);
-            return startBudget.getDailyAmount() * (Period.between(start, end).getDays() + 1);
+        return getTotalAmount(new Duration(start, end), list);
+    }
+
+    private int getTotalAmount(Duration duration, List<Budget> list) {
+        if (isSameMonth(duration.getStart(), duration.getEnd())) {
+            Budget startBudget = getBudget(duration.getStart(), list);
+            return startBudget.getDailyAmount() * (Period.between(duration.getStart(), duration.getEnd()).getDays() + 1);
         }
 
         int total = 0;
 
-        Budget startBudget = getBudget(start, list);
-        total += startBudget.getDailyAmount() * (Period.between(start, startBudget.getLastDay()).getDays() + 1);
+        Budget startBudget = getBudget(duration.getStart(), list);
+        total += startBudget.getDailyAmount() * (Period.between(duration.getStart(), startBudget.getLastDay()).getDays() + 1);
 
-        LocalDate next = start.withDayOfMonth(1).plusMonths(1);
-        while (next.isBefore(end.withDayOfMonth(1))) {
+        LocalDate next = duration.getStart().withDayOfMonth(1).plusMonths(1);
+        while (next.isBefore(duration.getEnd().withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
             total += budget.getDailyAmount() * (Period.between(budget.getFirstDay(), budget.getLastDay()).getDays() + 1);
             next = next.plusMonths(1);
         }
 
-        Budget endBudget = getBudget(end, list);
-        total += endBudget.getDailyAmount() * (Period.between(endBudget.getFirstDay(), end).getDays() + 1);
+        Budget endBudget = getBudget(duration.getEnd(), list);
+        total += endBudget.getDailyAmount() * (Period.between(endBudget.getFirstDay(), duration.getEnd()).getDays() + 1);
 
         return total;
     }
