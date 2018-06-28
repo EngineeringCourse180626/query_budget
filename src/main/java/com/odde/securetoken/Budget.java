@@ -40,4 +40,8 @@ public class Budget {
     public Duration getDuration() {
         return new Duration(getFirstDay(), getLastDay());
     }
+
+    public int getOverlappingAmount(Duration duration) {
+        return getDailyAmount() * duration.getOverlappingDays(getDuration());
+    }
 }
