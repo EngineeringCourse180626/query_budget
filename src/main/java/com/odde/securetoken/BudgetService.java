@@ -1,6 +1,7 @@
 package com.odde.securetoken;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -16,10 +17,14 @@ public class BudgetService {
             return 0;
         }
 
-        if (start.getYear() < end.getYear() || start.getMonth() != end.getMonth()) {
-            return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
+        if (YearMonth.from(start).equals(YearMonth.from(end))) {
+            return getAmountInMonth(start, end, list);
         }
 
+        return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
+    }
+
+    private int getAmountInMonth(LocalDate start, LocalDate end, List<Budget> list) {
         String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
         Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
             setAmount(0);
