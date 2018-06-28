@@ -17,51 +17,47 @@ public class BudgetService {
             return 0;
         }
 
-        if (YearMonth.from(start).equals(YearMonth.from(end))) {
-            return getAmountInMonth(start, end, list);
+        if (isSameMonth(start, end)) {
+            String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
+            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
+                setAmount(0);
+            }});
+            int monthBudget = budget.getAmount();
+            int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
+            return monthBudget / start.lengthOfMonth() * diffDays;
         }
 
-        return getStartPartialAmount(start, list) + getMiddleMonthsAmount(start, end, list) + getEndPartialAmount(end, list);
-    }
+        int total = 0;
 
-    private int getAmountInMonth(LocalDate start, LocalDate end, List<Budget> list) {
         String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
         Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
             setAmount(0);
         }});
-        int monthBudget = budget.getAmount();
-        int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
-        return monthBudget / start.lengthOfMonth() * diffDays;
-    }
+        total += budget.getAmount() / start.lengthOfMonth() * (start.lengthOfMonth() - start.getDayOfMonth() + 1);
 
-    private int getMiddleMonthsAmount(LocalDate start, LocalDate end, List<Budget> list) {
         int fullMonthBudgetAmount = 0;
         LocalDate next = start.withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(end.withDayOfMonth(1))) {
-            String str = next.format(DateTimeFormatter.ofPattern("yyyyMM"));
-            Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
+            String str1 = next.format(DateTimeFormatter.ofPattern("yyyyMM"));
+            Budget budget1 = list.stream().filter(b -> b.getYearAndMonth().equals(str1)).findFirst().orElse(new Budget() {{
                 setAmount(0);
             }});
-            fullMonthBudgetAmount += budget.amount;
+            fullMonthBudgetAmount += budget1.amount;
             next = next.plusMonths(1);
         }
-        return fullMonthBudgetAmount;
-    }
+        total += fullMonthBudgetAmount;
 
-    private int getEndPartialAmount(LocalDate date, List<Budget> list) {
-        String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
+        String str1 = end.format(DateTimeFormatter.ofPattern("yyyyMM"));
+        Budget budget1 = list.stream().filter(b -> b.getYearAndMonth().equals(str1)).findFirst().orElse(new Budget() {{
             setAmount(0);
         }});
-        return budget.getAmount() / date.lengthOfMonth() * date.getDayOfMonth();
+        total += budget1.getAmount() / end.lengthOfMonth() * end.getDayOfMonth();
+
+        return total;
     }
 
-    private int getStartPartialAmount(LocalDate date, List<Budget> list) {
-        String str = date.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        Budget budget = list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
-            setAmount(0);
-        }});
-        return budget.getAmount() / date.lengthOfMonth() * (date.lengthOfMonth() - date.getDayOfMonth() + 1);
+    private boolean isSameMonth(LocalDate start, LocalDate end) {
+        return YearMonth.from(start).equals(YearMonth.from(end));
     }
 
     protected List<Budget> findByYearMonth(LocalDate start, LocalDate end) {
