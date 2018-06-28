@@ -1,7 +1,6 @@
 package com.odde.securetoken;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -29,17 +28,17 @@ public class BudgetService {
         int total = 0;
 
         Budget startBudget = getBudget(duration.getStart(), list);
-        total += startBudget.getDailyAmount() * (Period.between(duration.getStart(), startBudget.getLastDay()).getDays() + 1);
+        total += startBudget.getDailyAmount() * new Duration(duration.getStart(), startBudget.getLastDay()).getDays();
 
         LocalDate next = duration.getStart().withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(duration.getEnd().withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
-            total += budget.getDailyAmount() * (Period.between(budget.getFirstDay(), budget.getLastDay()).getDays() + 1);
+            total += budget.getDailyAmount() * new Duration(budget.getFirstDay(), budget.getLastDay()).getDays();
             next = next.plusMonths(1);
         }
 
         Budget endBudget = getBudget(duration.getEnd(), list);
-        total += endBudget.getDailyAmount() * (Period.between(endBudget.getFirstDay(), duration.getEnd()).getDays() + 1);
+        total += endBudget.getDailyAmount() * new Duration(endBudget.getFirstDay(), duration.getEnd()).getDays();
 
         return total;
     }
