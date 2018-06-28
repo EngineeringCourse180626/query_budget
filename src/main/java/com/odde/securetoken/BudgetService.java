@@ -28,7 +28,7 @@ public class BudgetService {
         int total = 0;
 
         Budget startBudget = getBudget(duration.getStart(), list);
-        total += startBudget.getDailyAmount() * new Duration(duration.getStart(), startBudget.getDuration().getEnd()).getDays();
+        total += startBudget.getDailyAmount() * duration.getOverlappingDays(startBudget.getDuration());
 
         LocalDate next = duration.getStart().withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(duration.getEnd().withDayOfMonth(1))) {
@@ -38,7 +38,7 @@ public class BudgetService {
         }
 
         Budget endBudget = getBudget(duration.getEnd(), list);
-        total += endBudget.getDailyAmount() * new Duration(endBudget.getDuration().getStart(), duration.getEnd()).getDays();
+        total += endBudget.getDailyAmount() * endBudget.getDuration().getOverlappingDays(duration);
 
         return total;
     }

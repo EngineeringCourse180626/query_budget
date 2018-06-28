@@ -28,4 +28,8 @@ public class Duration {
     public int getDays() {
         return Period.between(start, end).getDays() + 1;
     }
+
+    public int getOverlappingDays(Duration anotherDuration) {
+        return new Duration(start, anotherDuration.end).getDays();
+    }
 }
