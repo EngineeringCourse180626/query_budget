@@ -5,7 +5,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
 public class Budget {
-    int amount;
+    private int amount;
 
     public int getAmount() {
         return amount;
@@ -15,29 +15,29 @@ public class Budget {
         this.amount = amount;
     }
 
-    public String getYearAndMonth() {
-        return yearAndMonth;
-    }
-
     public void setYearAndMonth(String yearAndMonth) {
         this.yearAndMonth = yearAndMonth;
     }
 
-    String yearAndMonth;
+    private String yearAndMonth;
 
-    public LocalDate getFirstDay() {
-        return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM")).atDay(1);
+    private LocalDate getFirstDay() {
+        return getYearMonth().atDay(1);
     }
 
-    public int getDailyAmount() {
+    private YearMonth getYearMonth() {
+        return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+    }
+
+    private int getDailyAmount() {
         return getAmount() / getFirstDay().lengthOfMonth();
     }
 
-    public LocalDate getLastDay() {
-        return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM")).atEndOfMonth();
+    private LocalDate getLastDay() {
+        return getYearMonth().atEndOfMonth();
     }
 
-    public Duration getDuration() {
+    private Duration getDuration() {
         return new Duration(getFirstDay(), getLastDay());
     }
 
