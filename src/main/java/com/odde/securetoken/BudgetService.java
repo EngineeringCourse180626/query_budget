@@ -22,7 +22,7 @@ public class BudgetService {
     private int getTotalAmount(Duration duration, List<Budget> list) {
         if (duration.isSameMonth()) {
             Budget startBudget = getBudget(duration.getStart(), list);
-            return startBudget.getDailyAmount() * duration.getDays();
+            return startBudget.getDailyAmount() * duration.getOverlappingDays(startBudget.getDuration());
         }
 
         int total = 0;
@@ -33,7 +33,7 @@ public class BudgetService {
         LocalDate next = duration.getStart().withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(duration.getEnd().withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
-            total += budget.getDailyAmount() * budget.getDuration().getDays();
+            total += budget.getDailyAmount() * duration.getOverlappingDays(budget.getDuration());
             next = next.plusMonths(1);
         }
 
