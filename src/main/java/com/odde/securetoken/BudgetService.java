@@ -19,9 +19,8 @@ public class BudgetService {
 
         if (isSameMonth(start, end)) {
             Budget startBudget = getBudget(start, list);
-            int monthBudget = startBudget.getAmount();
             int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
-            return monthBudget / start.lengthOfMonth() * diffDays;
+            return getDailyAmount(startBudget) * diffDays;
         }
 
         int total = 0;
@@ -33,7 +32,7 @@ public class BudgetService {
         LocalDate next = start.withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(end.withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
-            fullMonthBudgetAmount += budget.amount;
+            fullMonthBudgetAmount += budget.getAmount();
             next = next.plusMonths(1);
         }
         total += fullMonthBudgetAmount;
@@ -44,10 +43,15 @@ public class BudgetService {
         return total;
     }
 
+    private int getDailyAmount(Budget startBudget) {
+        return startBudget.getAmount() / startBudget.getFirstDay().lengthOfMonth();
+    }
+
     private Budget getBudget(LocalDate start, List<Budget> list) {
         String str = start.format(DateTimeFormatter.ofPattern("yyyyMM"));
         return list.stream().filter(b -> b.getYearAndMonth().equals(str)).findFirst().orElse(new Budget() {{
             setAmount(0);
+            setYearAndMonth(str);
         }});
     }
 

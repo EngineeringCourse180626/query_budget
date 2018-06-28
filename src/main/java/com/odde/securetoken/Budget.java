@@ -1,5 +1,9 @@
 package com.odde.securetoken;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+
 public class Budget {
     int amount;
 
@@ -20,4 +24,8 @@ public class Budget {
     }
 
     String yearAndMonth;
+
+    public LocalDate getFirstDay() {
+        return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM")).atDay(1);
+    }
 }
