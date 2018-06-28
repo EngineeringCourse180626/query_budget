@@ -28,4 +28,8 @@ public class Budget {
     public LocalDate getFirstDay() {
         return YearMonth.parse(yearAndMonth, DateTimeFormatter.ofPattern("yyyyMM")).atDay(1);
     }
+
+    public int getDailyAmount() {
+        return getAmount() / getFirstDay().lengthOfMonth();
+    }
 }
