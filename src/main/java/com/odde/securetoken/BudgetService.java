@@ -1,6 +1,7 @@
 package com.odde.securetoken;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -19,24 +20,23 @@ public class BudgetService {
 
         if (isSameMonth(start, end)) {
             Budget startBudget = getBudget(start, list);
-            int diffDays = end.getDayOfMonth() - start.getDayOfMonth() + 1;
-            return startBudget.getDailyAmount() * diffDays;
+            return startBudget.getDailyAmount() * (Period.between(start, end).getDays() + 1);
         }
 
         int total = 0;
 
         Budget startBudget = getBudget(start, list);
-        total += startBudget.getDailyAmount() * (start.lengthOfMonth() - start.getDayOfMonth() + 1);
+        total += startBudget.getDailyAmount() * (Period.between(start, startBudget.getLastDay()).getDays() + 1);
 
         LocalDate next = start.withDayOfMonth(1).plusMonths(1);
         while (next.isBefore(end.withDayOfMonth(1))) {
             Budget budget = getBudget(next, list);
-            total += budget.getDailyAmount() * budget.getFirstDay().lengthOfMonth();
+            total += budget.getDailyAmount() * (Period.between(budget.getFirstDay(), budget.getLastDay()).getDays() + 1);
             next = next.plusMonths(1);
         }
 
         Budget endBudget = getBudget(end, list);
-        total += endBudget.getDailyAmount() * end.getDayOfMonth();
+        total += endBudget.getDailyAmount() * (Period.between(endBudget.getFirstDay(), end).getDays() + 1);
 
         return total;
     }
